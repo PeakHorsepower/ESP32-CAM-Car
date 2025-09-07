@@ -1,16 +1,3 @@
-//Things to do
-  //Learn HTML and Javascript (Completed)
-      //Designing webpages (movement buttons, video streaming etc.) (Completed)
-      //Sending and recieving requests to/from ESP32-CAM (Completed)
-  //Understand the unknown parts of this program (90% Completed) (Still dont know what some libraries and code do)
-  //First use home wifi to control robot, but shift to using ESP32-CAM as an access point (Can be used anywhere)
-  //Modify program
-    //Controls for 4 motors (Completed as of 07/22/2025)
-    //Controls for camera pan/tilt servos (Completed as of 07/31/2025)
-  //The list of things to do are in the journal, but I'll put here that I need to figure out how to add the images
-  // from the esp32 file system to the webpage. (08/21/2025)
-
-
 #include "esp_camera.h"
 #include <WiFi.h>
 #include "esp_timer.h"
@@ -26,15 +13,12 @@
 
 
 // Replace with your network credentials
-//const char* ssid = "Verizon_XQ743S";
-//const char* password = "tuna7-pleat-did";
+//const char* ssid = "";
+//const char* password = "";
 
 //Soft AP credentails
 const char* ssid = "ESP32-CAM";
 const char* password = "123456789";
-
-//ESP32 CAM soft AP address
-//"http://192.168.4.1/"
 
 //Pan servo variables
 static const int Ppin = 2;
@@ -272,18 +256,6 @@ static esp_err_t index_handler(httpd_req_t *req){
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, (const char *)INDEX_HTML, strlen(INDEX_HTML));
 }
-/* This was my previous attempt at getting the webpage images to work, but it doesn't at the moment
-static esp_err_t image_handler(httpd_req_t *req){
-
-   File Back = LittleFS.open("Back arrow.jpg", "r");
-   const char* Backp = Back.read() ;
-
-  httpd_resp_set_type(req, "image/jpeg");
-
-  return httpd_resp_send(req, Backp , strlen(Backp));
-
-}
-*/
 
 //Handles the streaming of video on webpage. I might be able to send the image files in a similar way?
 static esp_err_t stream_handler(httpd_req_t *req){
@@ -376,7 +348,7 @@ static esp_err_t cmd_handler(httpd_req_t *req){
     return ESP_FAIL;
   }
 
-  sensor_t * s = esp_camera_sensor_get(); //Not needed
+  sensor_t * s = esp_camera_sensor_get();
   int res = 0;
   //if(true){Serial.print(variable);};
 
@@ -486,7 +458,7 @@ static esp_err_t Pvalue_handler(httpd_req_t *req){
 
    Pservo.write(str.toInt());
 
-  sensor_t * s = esp_camera_sensor_get();// Not needed
+  sensor_t * s = esp_camera_sensor_get();
   int res = 0;
 
  /*
@@ -539,7 +511,7 @@ static esp_err_t Tvalue_handler(httpd_req_t *req){
 
   Tservo.write(str.toInt());
 
-  sensor_t * s = esp_camera_sensor_get(); //Not needed
+  sensor_t * s = esp_camera_sensor_get(); 
   int res = 0;
 
  /*
@@ -592,21 +564,12 @@ void startCameraServer(){
     .handler   = Tvalue_handler,
     .user_ctx  = NULL
   };
-/*
-  httpd_uri_t image_uri = {
-    .uri       = "/Back arrow.jpg",
-    .method    = HTTP_GET,
-    .handler   = image_handler,
-    .user_ctx  = NULL
-  };
-*/
 
   if (httpd_start(&camera_httpd, &config) == ESP_OK) {
     httpd_register_uri_handler(camera_httpd, &index_uri);
     httpd_register_uri_handler(camera_httpd, &cmd_uri);
     httpd_register_uri_handler(camera_httpd, &Tvalue_uri);
     httpd_register_uri_handler(camera_httpd, &Pvalue_uri);
-    //httpd_register_uri_handler(camera_httpd, &image_uri);
 
   }
   config.server_port += 1;
